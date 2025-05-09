@@ -3,325 +3,782 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>レストランPOSシステム</title>
+    <title>桜和食POS - 究極のシステム</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap');
+        
+        :root {
+            --primary: #d70015;
+            --primary-dark: #a50000;
+            --secondary: #f8f1e5;
+            --accent: #f3a712;
+        }
         
         body {
             font-family: 'Noto Sans JP', sans-serif;
             touch-action: manipulation;
+            background-color: #f5f5f5;
+        }
+        
+        .title-font {
+            font-family: 'Sawarabi Mincho', serif;
+        }
+        
+        .menu-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
         
         .menu-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         
-        .receipt-scroll {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        
-        .receipt-scroll::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .blink {
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .category-tab {
+            transition: all 0.2s ease;
+            position: relative;
         }
         
         .category-tab.active {
-            border-bottom: 3px solid #ef4444;
-            color: #ef4444;
+            color: var(--primary);
             font-weight: 700;
+        }
+        
+        .category-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .receipt-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #e5e7eb transparent;
+        }
+        
+        .receipt-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .receipt-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .receipt-scroll::-webkit-scrollbar-thumb {
+            background-color: #e5e7eb;
+            border-radius: 20px;
+        }
+        
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .order-item {
+            transition: all 0.2s ease;
+        }
+        
+        .order-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(215, 0, 21, 0.1), 0 2px 4px -1px rgba(215, 0, 21, 0.06);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e8e1d5;
+            transform: translateY(-1px);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-accent:hover {
+            background-color: #e59a10;
+            transform: translateY(-1px);
+        }
+        
+        .floating-action {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .floating-action:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .menu-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            font-size: 24px;
+            box-shadow: inset 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+        }
+        
+        .table-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .table-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .table-item.occupied {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .table-item.available {
+            background-color: #e5e7eb;
+        }
+        
+        .table-item.reserved {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .slide-out {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(215, 0, 21, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(215, 0, 21, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(215, 0, 21, 0); }
+        }
+        
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="flex flex-col h-screen">
+<body class="bg-gray-50">
+    <div class="flex flex-col h-screen overflow-hidden">
         <!-- Header -->
-        <header class="bg-red-600 text-white p-4 shadow-md">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-utensils text-2xl"></i>
-                    <h1 class="text-xl font-bold">桜レストランPOS</h1>
+        <header class="bg-white shadow-md z-10">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-red-100 p-2 rounded-lg">
+                        <i class="fas fa-utensils text-red-600 text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold title-font text-gray-800">桜和食POS</h1>
                 </div>
+                
                 <div class="flex items-center space-x-4">
-                    <div class="bg-red-700 px-3 py-1 rounded-full flex items-center">
-                        <i class="fas fa-user mr-2"></i>
-                        <span>ブラハムズ</span>
+                    <div class="hidden md:flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-full">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm font-medium">オンライン</span>
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm">2025年05月09日</div>
-                        <div class="font-bold blink">営業中</div>
+                    
+                    <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-full">
+                        <div class="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-xs"></i>
+                        </div>
+                        <span class="text-sm font-medium">ブラハムズ</span>
                     </div>
+                    
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm text-gray-600" id="current-date">2023年11月15日 (水)</div>
+                        <div class="font-bold text-green-600 blink">営業中</div>
+                    </div>
+                    
+                    <button class="md:hidden bg-gray-100 p-2 rounded-full">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
                 </div>
+            </div>
+            
+            <!-- Secondary Navigation -->
+            <div class="flex overflow-x-auto bg-white border-b border-gray-200">
+                <button class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap border-b-2 border-transparent hover:border-red-200 hover:text-red-600 transition-all">
+                    <i class="fas fa-home mr-2"></i>ホーム
+                </button>
+                <button class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap border-b-2 border-red-500 text-red-600">
+                    <i class="fas fa-cash-register mr-2"></i>レジ
+                </button>
+                <button class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap border-b-2 border-transparent hover:border-red-200 hover:text-red-600 transition-all">
+                    <i class="fas fa-list-alt mr-2"></i>注文一覧
+                </button>
+                <button class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap border-b-2 border-transparent hover:border-red-200 hover:text-red-600 transition-all">
+                    <i class="fas fa-chart-line mr-2"></i>レポート
+                </button>
+                <button class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap border-b-2 border-transparent hover:border-red-200 hover:text-red-600 transition-all">
+                    <i class="fas fa-cog mr-2"></i>設定
+                </button>
             </div>
         </header>
 
         <!-- Main Content -->
         <div class="flex flex-1 overflow-hidden">
             <!-- Menu Section -->
-            <div class="w-2/3 bg-white p-4 overflow-y-auto">
+            <div class="w-full md:w-2/3 bg-white p-4 overflow-y-auto">
+                <!-- Table Selection (Mobile) -->
+                <div class="md:hidden mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold text-gray-700">テーブル選択</h2>
+                        <button class="text-sm text-red-600 font-medium">全表示</button>
+                    </div>
+                    <div class="table-grid">
+                        <div class="table-item occupied">1</div>
+                        <div class="table-item available">2</div>
+                        <div class="table-item occupied">3</div>
+                        <div class="table-item reserved">4</div>
+                        <div class="table-item available">5</div>
+                    </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="relative mb-4">
+                    <input type="text" placeholder="メニューを検索..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="absolute right-3 top-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+                </div>
+                
                 <!-- Category Tabs -->
-                <div class="flex space-x-1 mb-4 overflow-x-auto pb-2">
-                    <button class="category-tab active px-4 py-2 whitespace-nowrap">おすすめ</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">寿司</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">刺身</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">麺類</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">ご飯物</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">飲み物</button>
-                    <button class="category-tab px-4 py-2 whitespace-nowrap">デザート</button>
+                <div class="flex space-x-1 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                    <button class="category-tab active px-4 py-2 whitespace-nowrap text-sm md:text-base">おすすめ</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">寿司・にぎり</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">刺身・造り</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">焼き物・グリル</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">揚げ物・天ぷら</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">麺類・ご飯</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">酒・ドリンク</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">デザート</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">セットメニュー</button>
+                    <button class="category-tab px-4 py-2 whitespace-nowrap text-sm md:text-base">季節限定</button>
                 </div>
 
                 <!-- Menu Items Grid -->
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     <!-- Menu Item 1 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-fish text-red-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-red-50 text-red-500 mb-3">
+                            <i class="fas fa-fish"></i>
                         </div>
-                        <h3 class="font-bold text-center">まぐろ寿司</h3>
-                        <p class="text-gray-600 text-sm text-center">2貫</p>
-                        <p class="text-red-600 font-bold mt-1">¥450</p>
+                        <h3 class="font-bold text-center text-gray-800">本まぐろ赤身</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">2貫</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥480</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                        <div class="mt-2 flex space-x-1">
+                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">人気</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">新鮮</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 2 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-shrimp text-blue-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-blue-50 text-blue-500 mb-3">
+                            <i class="fas fa-shrimp"></i>
                         </div>
-                        <h3 class="font-bold text-center">えび寿司</h3>
-                        <p class="text-gray-600 text-sm text-center">2貫</p>
-                        <p class="text-red-600 font-bold mt-1">¥400</p>
+                        <h3 class="font-bold text-center text-gray-800">甘えび</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">2貫</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥420</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                        <div class="mt-2 flex space-x-1">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">おすすめ</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 3 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-egg text-yellow-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-yellow-50 text-yellow-500 mb-3">
+                            <i class="fas fa-egg"></i>
                         </div>
-                        <h3 class="font-bold text-center">たまご寿司</h3>
-                        <p class="text-gray-600 text-sm text-center">2貫</p>
-                        <p class="text-red-600 font-bold mt-1">¥300</p>
+                        <h3 class="font-bold text-center text-gray-800">玉子焼き</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">2切れ</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥320</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 4 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-leaf text-green-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-green-50 text-green-500 mb-3">
+                            <i class="fas fa-leaf"></i>
                         </div>
-                        <h3 class="font-bold text-center">野菜巻き</h3>
-                        <p class="text-gray-600 text-sm text-center">6切れ</p>
-                        <p class="text-red-600 font-bold mt-1">¥550</p>
+                        <h3 class="font-bold text-center text-gray-800">野菜天ぷら盛合</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">5種盛り</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥680</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 5 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-drumstick-bite text-pink-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-pink-50 text-pink-500 mb-3">
+                            <i class="fas fa-drumstick-bite"></i>
                         </div>
-                        <h3 class="font-bold text-center">焼き鳥</h3>
-                        <p class="text-gray-600 text-sm text-center">2本</p>
-                        <p class="text-red-600 font-bold mt-1">¥350</p>
+                        <h3 class="font-bold text-center text-gray-800">地鶏の塩焼き</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">2本</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥580</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 6 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-bowl-food text-purple-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-purple-50 text-purple-500 mb-3">
+                            <i class="fas fa-bowl-food"></i>
                         </div>
-                        <h3 class="font-bold text-center">ラーメン</h3>
-                        <p class="text-gray-600 text-sm text-center">醤油味</p>
-                        <p class="text-red-600 font-bold mt-1">¥850</p>
+                        <h3 class="font-bold text-center text-gray-800">特製ラーメン</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">醤油/味噌</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥980</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                        <div class="mt-2 flex space-x-1">
+                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">人気</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 7 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-mug-hot text-indigo-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-indigo-50 text-indigo-500 mb-3">
+                            <i class="fas fa-mug-hot"></i>
                         </div>
-                        <h3 class="font-bold text-center">緑茶</h3>
-                        <p class="text-gray-600 text-sm text-center">ホット/アイス</p>
-                        <p class="text-red-600 font-bold mt-1">¥300</p>
+                        <h3 class="font-bold text-center text-gray-800">宇治抹茶</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">ホット/アイス</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥380</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 8 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-beer text-amber-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-amber-50 text-amber-500 mb-3">
+                            <i class="fas fa-beer"></i>
                         </div>
-                        <h3 class="font-bold text-center">ビール</h3>
-                        <p class="text-gray-600 text-sm text-center">中ジョッキ</p>
-                        <p class="text-red-600 font-bold mt-1">¥600</p>
+                        <h3 class="font-bold text-center text-gray-800">地ビール</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">中ジョッキ</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥680</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
                     </div>
 
                     <!-- Menu Item 9 -->
-                    <div class="menu-item bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center cursor-pointer transition-all duration-200">
-                        <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-2">
-                            <i class="fas fa-ice-cream text-rose-500 text-xl"></i>
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-rose-50 text-rose-500 mb-3">
+                            <i class="fas fa-ice-cream"></i>
                         </div>
-                        <h3 class="font-bold text-center">抹茶アイス</h3>
-                        <p class="text-gray-600 text-sm text-center">1個</p>
-                        <p class="text-red-600 font-bold mt-1">¥400</p>
+                        <h3 class="font-bold text-center text-gray-800">抹茶アイス</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">1個</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥450</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu Item 10 -->
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-orange-50 text-orange-500 mb-3">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h3 class="font-bold text-center text-gray-800">和牛ステーキ</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">100g</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥2,980</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                        <div class="mt-2 flex space-x-1">
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">高級</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">限定</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu Item 11 -->
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-teal-50 text-teal-500 mb-3">
+                            <i class="fas fa-water"></i>
+                        </div>
+                        <h3 class="font-bold text-center text-gray-800">海鮮丼</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">5種盛り</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥1,280</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu Item 12 -->
+                    <div class="menu-item bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer">
+                        <div class="menu-icon bg-fuchsia-50 text-fuchsia-500 mb-3">
+                            <i class="fas fa-wine-glass-alt"></i>
+                        </div>
+                        <h3 class="font-bold text-center text-gray-800">日本酒セット</h3>
+                        <p class="text-gray-500 text-xs text-center mb-1">3種飲み比べ</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-600 font-bold text-lg">¥1,580</span>
+                            <span class="text-xs text-gray-400 ml-1">税込</span>
+                        </div>
+                        <div class="mt-2 flex space-x-1">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">お得</span>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Floating Action Button -->
+                <button id="cart-fab" class="md:hidden fixed bottom-6 right-6 w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg floating-action pulse">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-white text-red-600 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-red-600">3</span>
+                </button>
             </div>
 
             <!-- Order Section -->
-            <div class="w-1/3 bg-gray-50 border-l border-gray-200 flex flex-col">
-                <!-- Current Order -->
-                <div class="p-4 border-b border-gray-200">
-                    <div class="flex justify-between items-center mb-2">
-                        <h2 class="font-bold text-lg">注文 #124</h2>
+            <div id="order-section" class="hidden md:flex md:w-1/3 lg:w-2/5 bg-gray-50 border-l border-gray-200 flex-col">
+                <!-- Current Order Header -->
+                <div class="p-4 border-b border-gray-200 bg-white">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="font-bold text-lg text-gray-800">
+                            <i class="fas fa-receipt text-red-500 mr-2"></i>
+                            注文 #124
+                        </h2>
                         <div class="flex space-x-2">
-                            <button class="bg-gray-200 p-2 rounded-full">
+                            <button class="btn-secondary p-2 rounded-lg">
                                 <i class="fas fa-user-plus text-gray-600"></i>
                             </button>
-                            <button class="bg-gray-200 p-2 rounded-full">
+                            <button class="btn-secondary p-2 rounded-lg">
                                 <i class="fas fa-print text-gray-600"></i>
+                            </button>
+                            <button class="btn-secondary p-2 rounded-lg">
+                                <i class="fas fa-ellipsis-h text-gray-600"></i>
                             </button>
                         </div>
                     </div>
                     
+                    <!-- Table Selection -->
                     <div class="flex space-x-2 mb-3">
-                        <div class="flex-1">
-                            <select class="w-full p-2 border border-gray-300 rounded">
+                        <div class="flex-1 relative">
+                            <select class="w-full p-2 pl-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
                                 <option>テーブル 1</option>
                                 <option>テーブル 2</option>
-                                <option>テーブル 3</option>
+                                <option selected>テーブル 3</option>
                                 <option>テーブル 4</option>
                                 <option>テーブル 5</option>
+                                <option>カウンター</option>
                                 <option>テイクアウト</option>
                                 <option>デリバリー</option>
                             </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
                         </div>
-                        <button class="bg-red-100 text-red-600 px-3 rounded">
-                            <i class="fas fa-utensils"></i>
+                        <button class="btn-primary px-4 rounded-lg flex items-center">
+                            <i class="fas fa-utensils mr-1"></i>
+                            <span class="hidden lg:inline">席変更</span>
                         </button>
                     </div>
                     
-                    <div class="bg-white rounded-lg p-3 shadow-inner h-64 overflow-y-auto receipt-scroll">
-                        <!-- Order Items -->
-                        <div class="border-b border-gray-100 pb-2 mb-2">
+                    <!-- Customer Info -->
+                    <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg mb-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center mr-2">
+                                <i class="fas fa-user text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium">山田 花子 様</div>
+                                <div class="text-xs text-gray-500">3名様</div>
+                            </div>
+                        </div>
+                        <button class="text-red-600 text-sm font-medium">
+                            <i class="fas fa-pencil-alt mr-1"></i>
+                            編集
+                        </button>
+                    </div>
+                    
+                    <!-- Order Timer -->
+                    <div class="flex items-center justify-between bg-blue-50 text-blue-800 p-2 rounded-lg mb-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span class="text-sm font-medium">注文時間</span>
+                        </div>
+                        <div class="font-bold">18:24</div>
+                    </div>
+                </div>
+                
+                <!-- Order Items -->
+                <div class="flex-1 bg-white p-4 overflow-y-auto receipt-scroll">
+                    <!-- Order Note -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <div class="flex items-start">
+                            <div class="text-yellow-600 mr-2 mt-0.5">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-yellow-800">注文メモ</div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>アレルギー: 小麦・卵</p>
+                            <p class="mt-1">お子様用の椅子を1つお願いします</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items List -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-gray-700">注文内容</h3>
+                            <button class="text-sm text-red-600 font-medium">
+                                <i class="fas fa-trash-alt mr-1"></i>
+                                全消去
+                            </button>
+                        </div>
+                        
+                        <!-- Order Item 1 -->
+                        <div class="order-item bg-gray-50 rounded-lg p-3 mb-2">
                             <div class="flex justify-between">
                                 <div>
-                                    <span class="font-bold">まぐろ寿司</span>
+                                    <span class="font-bold">本まぐろ赤身</span>
                                     <span class="text-gray-500 text-sm ml-2">×2</span>
                                 </div>
                                 <div class="flex items-center">
-                                    <span class="font-bold">¥900</span>
-                                    <button class="ml-2 text-red-500">
+                                    <span class="font-bold">¥960</span>
+                                    <button class="ml-3 text-red-500 hover:text-red-700">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="text-sm text-gray-500 pl-2">- わさび抜き</div>
+                            <div class="text-sm text-gray-500 pl-2 mt-1">
+                                <div class="flex items-start mb-1">
+                                    <i class="fas fa-edit text-xs mt-0.5 mr-1 text-gray-400"></i>
+                                    <span>わさび抜き</span>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="border-b border-gray-100 pb-2 mb-2">
+                        <!-- Order Item 2 -->
+                        <div class="order-item bg-gray-50 rounded-lg p-3 mb-2">
                             <div class="flex justify-between">
                                 <div>
-                                    <span class="font-bold">えび寿司</span>
+                                    <span class="font-bold">甘えび</span>
                                     <span class="text-gray-500 text-sm ml-2">×1</span>
                                 </div>
                                 <div class="flex items-center">
-                                    <span class="font-bold">¥400</span>
-                                    <button class="ml-2 text-red-500">
+                                    <span class="font-bold">¥420</span>
+                                    <button class="ml-3 text-red-500 hover:text-red-700">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="border-b border-gray-100 pb-2 mb-2">
+                        <!-- Order Item 3 -->
+                        <div class="order-item bg-gray-50 rounded-lg p-3 mb-2">
                             <div class="flex justify-between">
                                 <div>
-                                    <span class="font-bold">ビール</span>
+                                    <span class="font-bold">地ビール</span>
                                     <span class="text-gray-500 text-sm ml-2">×2</span>
                                 </div>
                                 <div class="flex items-center">
-                                    <span class="font-bold">¥1,200</span>
-                                    <button class="ml-2 text-red-500">
+                                    <span class="font-bold">¥1,360</span>
+                                    <button class="ml-3 text-red-500 hover:text-red-700">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="text-sm text-gray-500 pl-2">- 冷やしてください</div>
+                            <div class="text-sm text-gray-500 pl-2 mt-1">
+                                <div class="flex items-start mb-1">
+                                    <i class="fas fa-edit text-xs mt-0.5 mr-1 text-gray-400"></i>
+                                    <span>冷やしてください</span>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="border-b border-gray-100 pb-2 mb-2">
+                        <!-- Order Item 4 -->
+                        <div class="order-item bg-gray-50 rounded-lg p-3 mb-2">
                             <div class="flex justify-between">
                                 <div>
-                                    <span class="font-bold">ラーメン</span>
+                                    <span class="font-bold">特製ラーメン</span>
                                     <span class="text-gray-500 text-sm ml-2">×1</span>
                                 </div>
                                 <div class="flex items-center">
-                                    <span class="font-bold">¥850</span>
-                                    <button class="ml-2 text-red-500">
+                                    <span class="font-bold">¥980</span>
+                                    <button class="ml-3 text-red-500 hover:text-red-700">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="text-sm text-gray-500 pl-2">- 麺固め</div>
+                            <div class="text-sm text-gray-500 pl-2 mt-1">
+                                <div class="flex items-start mb-1">
+                                    <i class="fas fa-edit text-xs mt-0.5 mr-1 text-gray-400"></i>
+                                    <span>麺固め</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-edit text-xs mt-0.5 mr-1 text-gray-400"></i>
+                                    <span>味噌味</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Order Summary -->
-                    <div class="mt-3 bg-white rounded-lg p-3 shadow">
-                        <div class="flex justify-between mb-1">
-                            <span>小計:</span>
-                            <span>¥3,350</span>
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">小計:</span>
+                            <span class="font-medium">¥3,720</span>
                         </div>
-                        <div class="flex justify-between mb-1">
-                            <span>消費税 (10%):</span>
-                            <span>¥335</span>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">消費税 (10%):</span>
+                            <span class="font-medium">¥372</span>
                         </div>
-                        <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-lg">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">サービス料 (5%):</span>
+                            <span class="font-medium">¥186</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-3 mt-2 flex justify-between font-bold text-lg">
                             <span>合計:</span>
-                            <span class="text-red-600">¥3,685</span>
+                            <span class="text-red-600">¥4,278</span>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Payment Buttons -->
-                <div class="p-4 flex-1 flex flex-col">
-                    <div class="grid grid-cols-3 gap-2 mb-3">
-                        <button class="bg-gray-200 p-3 rounded-lg font-bold">数量</button>
-                        <button class="bg-gray-200 p-3 rounded-lg font-bold">メモ</button>
-                        <button class="bg-gray-200 p-3 rounded-lg font-bold">割引</button>
+                <div class="p-4 bg-white border-t border-gray-200">
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button class="btn-secondary py-2 rounded-lg font-medium text-sm">
+                            <i class="fas fa-plus mr-1"></i>数量
+                        </button>
+                        <button class="btn-secondary py-2 rounded-lg font-medium text-sm">
+                            <i class="fas fa-edit mr-1"></i>メモ
+                        </button>
+                        <button class="btn-secondary py-2 rounded-lg font-medium text-sm">
+                            <i class="fas fa-tag mr-1"></i>割引
+                        </button>
+                        <button class="btn-secondary py-2 rounded-lg font-medium text-sm">
+                            <i class="fas fa-share-alt mr-1"></i>分割
+                        </button>
                     </div>
                     
-                    <div class="grid grid-cols-5 gap-2 mb-3">
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">1</button>
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">2</button>
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">3</button>
-                        <button class="bg-red-100 text-red-600 p-3 rounded-lg font-bold">削除</button>
-                        <button class="bg-red-100 text-red-600 p-3 rounded-lg font-bold">全消</button>
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">4</button>
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">5</button>
-                        <button class="bg-blue-100 text-blue-700 p-3 rounded-lg font-bold">6</button>
-                        <button class="bg-yellow-100 text-yellow-700 p-3 rounded-lg font-bold">戻る</button>
-                        <button class="bg-yellow-100 text-yellow-700 p-3 rounded-lg font-bold">保留</button>
+                    <!-- Number Pad -->
+                    <div class="grid grid-cols-5 gap-2 mb-4">
+                        <button class="btn-secondary py-3 rounded-lg font-bold">1</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">2</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">3</button>
+                        <button class="btn-accent py-3 rounded-lg font-bold">
+                            <i class="fas fa-backspace"></i>
+                        </button>
+                        <button class="btn-accent py-3 rounded-lg font-bold">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">4</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">5</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">6</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-undo-alt"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">7</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">8</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">9</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-history"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">.</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">0</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">00</button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-percentage"></i>
+                        </button>
+                        <button class="btn-secondary py-3 rounded-lg font-bold">
+                            <i class="fas fa-equals"></i>
+                        </button>
                     </div>
                     
-                    <div class="grid grid-cols-3 gap-2 mt-auto">
-                        <button class="bg-green-100 text-green-700 p-4 rounded-lg font-bold flex items-center justify-center">
-                            <i class="fas fa-money-bill-wave mr-2"></i> 現金
+                    <!-- Payment Methods -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="btn-primary py-3 rounded-lg font-bold flex items-center justify-center">
+                            <i class="fas fa-money-bill-wave mr-2"></i>
+                            <span class="hidden sm:inline">現金</span>
                         </button>
-                        <button class="bg-green-100 text-green-700 p-4 rounded-lg font-bold flex items-center justify-center">
-                            <i class="fas fa-credit-card mr-2"></i> カード
+                        <button class="btn-primary py-3 rounded-lg font-bold flex items-center justify-center">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            <span class="hidden sm:inline">カード</span>
                         </button>
-                        <button class="bg-green-600 text-white p-4 rounded-lg font-bold flex items-center justify-center">
-                            <i class="fas fa-check mr-2"></i> 確定
+                        <button class="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold flex items-center justify-center transition-all">
+                            <i class="fas fa-check mr-2"></i>
+                            <span class="hidden sm:inline">確定</span>
                         </button>
                     </div>
                 </div>
@@ -329,7 +786,45 @@
         </div>
     </div>
 
+    <!-- Modals -->
+    <div id="table-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="p-5 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800">テーブル選択</h3>
+            </div>
+            <div class="p-5">
+                <div class="table-grid">
+                    <div class="table-item occupied">1</div>
+                    <div class="table-item available">2</div>
+                    <div class="table-item occupied">3</div>
+                    <div class="table-item reserved">4</div>
+                    <div class="table-item available">5</div>
+                    <div class="table-item available">6</div>
+                    <div class="table-item occupied">7</div>
+                    <div class="table-item available">8</div>
+                    <div class="table-item available">9</div>
+                    <div class="table-item occupied">10</div>
+                    <div class="table-item available">11</div>
+                    <div class="table-item available">12</div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-gray-200 flex justify-end space-x-3">
+                <button class="px-4 py-2 text-gray-600 font-medium rounded-lg hover:bg-gray-100">
+                    キャンセル
+                </button>
+                <button class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700">
+                    選択
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Initialize current date
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('ja-JP', options);
+        
         // Category tab switching
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -343,28 +838,75 @@
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', () => {
                 // Here you would add the item to the current order
-                item.classList.add('bg-blue-50', 'border-blue-200');
+                item.classList.add('ring-2', 'ring-red-500');
                 setTimeout(() => {
-                    item.classList.remove('bg-blue-50', 'border-blue-200');
-                }, 200);
+                    item.classList.remove('ring-2', 'ring-red-500');
+                }, 300);
+                
+                // Update cart count
+                const cartCount = document.querySelector('#cart-fab span');
+                const currentCount = parseInt(cartCount.textContent);
+                cartCount.textContent = currentCount + 1;
+                cartCount.classList.add('animate-bounce');
+                setTimeout(() => cartCount.classList.remove('animate-bounce'), 1000);
             });
+        });
+
+        // Table selection
+        document.querySelectorAll('.table-item').forEach(table => {
+            table.addEventListener('click', () => {
+                document.querySelectorAll('.table-item').forEach(t => t.classList.remove('ring-2', 'ring-red-500'));
+                table.classList.add('ring-2', 'ring-red-500');
+            });
+        });
+
+        // Floating cart button for mobile
+        const cartFab = document.getElementById('cart-fab');
+        const orderSection = document.getElementById('order-section');
+        
+        cartFab.addEventListener('click', () => {
+            orderSection.classList.toggle('hidden');
+            orderSection.classList.toggle('slide-in');
+            
+            if(orderSection.classList.contains('hidden')) {
+                orderSection.classList.remove('slide-in');
+                orderSection.classList.add('slide-out');
+            }
+        });
+
+        // Table modal
+        const tableModal = document.getElementById('table-modal');
+        
+        document.querySelector('[aria-label="Select table"]').addEventListener('click', () => {
+            tableModal.classList.remove('hidden');
+        });
+        
+        document.querySelectorAll('#table-modal button').forEach(btn => {
+            if(btn.textContent.includes('キャンセル') || btn.textContent.includes('選択')) {
+                btn.addEventListener('click', () => {
+                    tableModal.classList.add('hidden');
+                });
+            }
         });
 
         // Simulate blink animation for open/closed status
         setInterval(() => {
             const status = document.querySelector('.blink');
             status.classList.toggle('opacity-75');
-        }, 1000);
+        }, 1500);
 
-        // Number pad functionality would be implemented here
-        document.querySelectorAll('[class*="bg-blue-100"]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Handle number input for quantity
-            });
+        // Number pad functionality
+        document.querySelectorAll('[class*="btn-secondary"]').forEach(btn => {
+            if(/^\d+$/.test(btn.textContent.trim()) || btn.textContent.trim() === '.' || btn.textContent.trim() === '00') {
+                btn.addEventListener('click', () => {
+                    // Handle number input for quantity
+                    console.log('Number pressed:', btn.textContent.trim());
+                });
+            }
         });
 
         // Payment method buttons
-        document.querySelectorAll('[class*="bg-green-100"], [class*="bg-green-600"]').forEach(btn => {
+        document.querySelectorAll('[class*="btn-primary"], [class*="bg-green-600"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 // Handle payment processing
                 if(btn.textContent.includes('現金') || btn.textContent.includes('カード')) {
